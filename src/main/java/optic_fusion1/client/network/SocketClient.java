@@ -25,6 +25,10 @@ import optic_fusion1.packets.impl.PingPacket;
 import optic_fusion1.packets.utils.RSACrypter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 
 public class SocketClient implements CommandSender {
 
@@ -289,12 +293,20 @@ public class SocketClient implements CommandSender {
     }
 
     public void handleInput() {
-        Scanner scanner = new Scanner(System.in);
-        while (isConnected()) {
-            String msg = scanner.nextLine();
-            // prevent sending empty messages
-            if(msg.isEmpty() || msg.startsWith(" ")) continue;
-            sendPacket(new MessagePacket(OpCode.MESSAGE, new Message(this.user, msg).serialize(), MessagePacket.MessageChatType.USER));
+        LineReader reader = LineReaderBuilder.builder().build();
+        while(isConnected()) {
+            String line;
+            try {
+                line = reader.readLine("> ");
+
+                if(line.isEmpty() || line.isBlank()) continue;
+                sendPacket(new MessagePacket(OpCode.MESSAGE, new Message(this.user, line).serialize(), MessagePacket.MessageChatType.USER));
+            } catch (UserInterruptException e) {
+                this.disconnect();
+                System.exit(0);
+            } catch (EndOfFileException e) {
+                LOGGER.error(e);
+            }
         }
     }
 
