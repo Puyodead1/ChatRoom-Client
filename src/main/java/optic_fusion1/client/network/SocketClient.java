@@ -49,7 +49,8 @@ public class SocketClient implements CommandSender {
   private final String username;
   private final String password;
 
-  public SocketClient(final Client client, final String ip, final int port, final String username, final String password) {
+  public SocketClient(final Client client, final String ip, final int port, final String username,
+      final String password) {
     this.client = client;
     this.ip = ip;
     this.port = port;
@@ -102,7 +103,7 @@ public class SocketClient implements CommandSender {
     });
     this.packetListener.start();
 
-    { //Encryption
+    { // Encryption
       int rsaKeyLength = RSACrypter.getRSAKeyLength();
 
       try {
@@ -121,7 +122,7 @@ public class SocketClient implements CommandSender {
       }
     }
 
-    { //Call event
+    { // Call event
       for (ClientEventListener clientEventListener : this.eventListener.toArray(new ClientEventListener[0])) {
         try {
           clientEventListener.onPreConnect();
@@ -142,7 +143,8 @@ public class SocketClient implements CommandSender {
   }
 
   public boolean isConnected() {
-    return this.socket != null && this.socket.isConnected() && this.packetListener.isAlive() && !this.packetListener.isInterrupted();
+    return this.socket != null && this.socket.isConnected() && this.packetListener.isAlive()
+        && !this.packetListener.isInterrupted();
   }
 
   public void addEventListener(final ClientEventListener clientEventListener) {
@@ -171,7 +173,7 @@ public class SocketClient implements CommandSender {
     this.encryptionKey = null;
     this.decryptionKey = null;
 
-    { //Call event
+    { // Call event
       for (ClientEventListener clientEventListener : this.eventListener.toArray(new ClientEventListener[0])) {
         try {
           clientEventListener.onDisconnect();
@@ -187,7 +189,7 @@ public class SocketClient implements CommandSender {
       try {
         this.encryptionKey = RSACrypter.initPublicKey(packet);
 
-        { //Call event
+        { // Call event
           for (ClientEventListener clientEventListener : this.eventListener.toArray(new ClientEventListener[0])) {
             try {
               clientEventListener.onConnectionEstablished();
@@ -223,7 +225,7 @@ public class SocketClient implements CommandSender {
         return;
       }
 
-      { //Call event
+      { // Call event
         for (ClientEventListener clientEventListener : this.eventListener.toArray(new ClientEventListener[0])) {
           try {
             clientEventListener.onPacketReceive(this, packetObject);
@@ -234,7 +236,7 @@ public class SocketClient implements CommandSender {
       }
     } catch (Exception e) {
       e.printStackTrace();
-      { //Call event
+      { // Call event
         for (ClientEventListener clientEventListener : this.eventListener.toArray(new ClientEventListener[0])) {
           try {
             clientEventListener.onRawPacketReceive(packet);
@@ -296,7 +298,8 @@ public class SocketClient implements CommandSender {
       if (msg.isEmpty() || msg.startsWith(" ")) {
         continue;
       }
-      sendPacket(new MessagePacket(OpCode.MESSAGE, new Message(this.user, msg).serialize(), MessagePacket.MessageChatType.USER));
+      sendPacket(new MessagePacket(OpCode.MESSAGE, new Message(this.user, msg).serialize(),
+          MessagePacket.MessageChatType.USER));
     }
   }
 

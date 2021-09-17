@@ -5,6 +5,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.fusesource.jansi.AnsiConsole;
 
 import java.net.ConnectException;
 import java.util.Objects;
@@ -14,6 +15,8 @@ public class Main {
   private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
   public static void main(String[] args) {
+    AnsiConsole.systemInstall();
+
     OptionParser optionParser = new OptionParser();
     OptionSpec<Void> helpSpec = optionParser.accepts("help").forHelp();
     OptionSpec<String> hostSpec = optionParser.accepts("host").withRequiredArg();
