@@ -10,41 +10,40 @@ import java.net.ConnectException;
 import java.util.Objects;
 
 public class Main {
-    private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
-    public static void main(String[] args) {
-        OptionParser optionParser = new OptionParser();
-        OptionSpec<Void> helpSpec = optionParser.accepts("help").forHelp();
-        OptionSpec<String> hostSpec = optionParser.accepts("host").withRequiredArg();
-        OptionSpec<String> portSpec = optionParser.accepts("port").withRequiredArg();
-        OptionSpec<String> usernameSpec = optionParser.accepts("username").withRequiredArg();
-        OptionSpec<String> passwordSpec = optionParser.accepts("password").withRequiredArg();
+  private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
-        try {
-            OptionSet optionSet = optionParser.parse(args);
+  public static void main(String[] args) {
+    OptionParser optionParser = new OptionParser();
+    OptionSpec<Void> helpSpec = optionParser.accepts("help").forHelp();
+    OptionSpec<String> hostSpec = optionParser.accepts("host").withRequiredArg();
+    OptionSpec<String> portSpec = optionParser.accepts("port").withRequiredArg();
+    OptionSpec<String> usernameSpec = optionParser.accepts("username").withRequiredArg();
+    OptionSpec<String> passwordSpec = optionParser.accepts("password").withRequiredArg();
 
-            if (optionSet.has(helpSpec)) {
-                optionParser.printHelpOn(System.out);
-                return;
-            }
+    try {
+      OptionSet optionSet = optionParser.parse(args);
 
-            String serverHost = optionSet.valueOf(hostSpec);
-            String serverPort = optionSet.valueOf(portSpec);
-            String username = optionSet.valueOf(usernameSpec);
-            String password = optionSet.valueOf(passwordSpec);
+      if (optionSet.has(helpSpec)) {
+        optionParser.printHelpOn(System.out);
+        return;
+      }
 
+      String serverHost = optionSet.valueOf(hostSpec);
+      String serverPort = optionSet.valueOf(portSpec);
+      String username = optionSet.valueOf(usernameSpec);
+      String password = optionSet.valueOf(passwordSpec);
 
-            if (Objects.isNull(serverHost) || Objects.isNull(serverPort)) {
-                optionParser.printHelpOn(System.out);
-                return;
-            }
+      if (Objects.isNull(serverHost) || Objects.isNull(serverPort)) {
+        optionParser.printHelpOn(System.out);
+        return;
+      }
 
-            // TODO:
-            Client client = new Client(serverHost, Integer.parseInt(serverPort), username, password);
-        } catch (ConnectException e) {
-            LOGGER.fatal(e.getLocalizedMessage());
-        } catch (Exception e) {
-            LOGGER.fatal("Failed to start Client!", e);
-        }
+      new Client(serverHost, Integer.parseInt(serverPort), username, password);
+    } catch (ConnectException e) {
+      LOGGER.fatal(e.getLocalizedMessage());
+    } catch (Exception e) {
+      LOGGER.fatal("Failed to start Client!", e);
     }
+  }
 }
