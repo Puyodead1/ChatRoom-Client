@@ -1,20 +1,17 @@
 package optic_fusion1.client;
 
-import com.sun.tools.javac.Main;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import optic_fusion1.common.protos.Packet;
+import optic_fusion1.common.protos.ProtocolVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.fusesource.jansi.AnsiConsole;
 
 public class ChatRoomClient {
 
-    private static final Logger LOGGER = LogManager.getLogger(Main.class);
+    private static final Logger LOGGER = LogManager.getLogger(ChatRoomClient.class);
 
     public static void main(String[] args) {
         AnsiConsole.systemInstall();
@@ -25,8 +22,6 @@ public class ChatRoomClient {
         OptionSpec<Integer> portSpec = optionParser.accepts("port", "Server port").withOptionalArg().ofType(Integer.class).defaultsTo(8888);
         OptionSpec<String> usernameSpec = optionParser.accepts("username", "Server account username").withOptionalArg();
         OptionSpec<String> passwordSpec = optionParser.accepts("password", "Server account password").withOptionalArg();
-
-        EventLoopGroup group = new NioEventLoopGroup();
 
         try {
             OptionSet optionSet = optionParser.parse(args);
@@ -41,17 +36,20 @@ public class ChatRoomClient {
             String username = optionSet.valueOf(usernameSpec);
             String password = optionSet.valueOf(passwordSpec);
 
-            Bootstrap b = new Bootstrap();
-            b.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ClientChannelInitializer());
+            Client client = new Client(serverHost, serverPort);
+            client.start();
 
-            b.connect(serverHost, serverPort).sync().channel();
+            Packet.Builder packet = Packet.newBuilder();
 
+            packet.setPacketType(Packet.PacketType.HANDSHAKE);
+            packet.setProtocolVersion(ProtocolVersion.VERSION_000);
+            packet.setUseEncryption(true);
+
+            client.sendPacket(packet.build());
+
+            client.stop();
         } catch (Exception e) {
-            LOGGER.fatal(String.format("Failed to start ChatRoom client: %s", e.getLocalizedMessage()));
-        } finally {
-            group.shutdownGracefully();
+            LOGGER.fatal(String.format("Error parsing options: %s", e.getLocalizedMessage()));
         }
     }
 }

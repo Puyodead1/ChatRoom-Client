@@ -4,6 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>optic_fusion1</groupId>
+        <artifactId>ChatRoom</artifactId>
+        <version>0.1.1-SNAPSHOT</version>
+    </parent>
+
     <groupId>optic_fusion1</groupId>
     <artifactId>Client</artifactId>
     <version>0.1.1-SNAPSHOT</version>
@@ -23,11 +29,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.19.1</version>
-        </dependency>
-        <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
             <version>6.0-alpha-3</version>
@@ -45,12 +46,17 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.15.0</version>
+            <version>2.16.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.15.0</version>
+            <version>2.16.0</version>
+        </dependency>
+        <dependency>
+            <groupId>optic_fusion1</groupId>
+            <artifactId>Common</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
