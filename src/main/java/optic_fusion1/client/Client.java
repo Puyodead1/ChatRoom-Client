@@ -13,6 +13,7 @@ import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import optic_fusion1.common.protos.Packet;
+import optic_fusion1.common.protos.ProtocolVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +27,7 @@ public class Client implements Runnable {
     private final PacketMessageHandler messageHandler = new PacketMessageHandler();
     private boolean isRunning = false;
     private ExecutorService executor = null;
+    public final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.VERSION_000;
 
     public String host;
     public int port;
@@ -82,14 +84,14 @@ public class Client implements Runnable {
             b.channel(NioSocketChannel.class);
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
-                public void initChannel(SocketChannel socketChannel) throws Exception {
+                public void initChannel(SocketChannel socketChannel) {
                     ChannelPipeline p = socketChannel.pipeline();
 
                     p.addLast(new ProtobufVarint32FrameDecoder());
                     p.addLast(new ProtobufDecoder(Packet.getDefaultInstance()));
                     p.addLast(new ProtobufVarint32LengthFieldPrepender());
                     p.addLast(new ProtobufEncoder());
-                    p.addLast(new PacketMessageHandler());
+                    p.addLast(messageHandler);
                 }
             });
 
@@ -101,7 +103,7 @@ public class Client implements Runnable {
         }
     }
 
-    public ChannelFuture sendPacket(Packet packet) throws Exception {
-        return messageHandler.sendPacket(packet);
-    }
+//    public ChannelFuture sendPacket(Packet packet) throws Exception {
+//        return messageHandler.sendPacket(packet);
+//    }
 }

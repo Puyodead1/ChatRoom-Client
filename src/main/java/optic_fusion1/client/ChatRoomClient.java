@@ -3,18 +3,23 @@ package optic_fusion1.client;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import optic_fusion1.common.protos.Packet;
-import optic_fusion1.common.protos.ProtocolVersion;
+import net.lenni0451.asmevents.EventManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.fusesource.jansi.AnsiConsole;
 
+import java.io.IOException;
+import java.util.Properties;
+
 public class ChatRoomClient {
 
     private static final Logger LOGGER = LogManager.getLogger(ChatRoomClient.class);
+    public static final Properties properties = new Properties();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         AnsiConsole.systemInstall();
+
+        properties.load(ChatRoomClient.class.getClassLoader().getResourceAsStream("project.properties"));
 
         OptionParser optionParser = new OptionParser();
         OptionSpec<Void> helpSpec = optionParser.accepts("help").forHelp();
@@ -33,22 +38,25 @@ public class ChatRoomClient {
 
             String serverHost = optionSet.valueOf(hostSpec);
             int serverPort = optionSet.valueOf(portSpec);
+
             String username = optionSet.valueOf(usernameSpec);
             String password = optionSet.valueOf(passwordSpec);
 
-            Client client = new Client(serverHost, serverPort);
-            client.start();
+            try {
+                Client client = new Client(serverHost, serverPort);
 
-            Packet.Builder packet = Packet.newBuilder();
+                ClientEventListener eventListener = new ClientEventListener(client);
+                EventManager.register(eventListener);
 
-            packet.setPacketType(Packet.PacketType.HANDSHAKE);
-            packet.setProtocolVersion(ProtocolVersion.VERSION_000);
-            packet.setUseEncryption(true);
-
-            client.sendPacket(packet.build());
-
-            client.stop();
+                client.start();
+//
+//                client.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+                LOGGER.fatal(String.format("Error starting ChatRoom client: %s", e.getLocalizedMessage()));
+            }
         } catch (Exception e) {
+            e.printStackTrace();
             LOGGER.fatal(String.format("Error parsing options: %s", e.getLocalizedMessage()));
         }
     }
