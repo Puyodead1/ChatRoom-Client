@@ -6,13 +6,13 @@ import optic_fusion1.common.protos.Packet;
 
 public class ClientChannelHandlerContext {
 
-    private ChannelHandlerContext ctx;
+    private ChannelHandlerContext channelHandlerContext;
 
-    public ClientChannelHandlerContext(ChannelHandlerContext ctx) {
-        this.ctx = ctx;
+    public ClientChannelHandlerContext(ChannelHandlerContext channelHandlerContext) {
+        this.channelHandlerContext = channelHandlerContext;
     }
 
     public ChannelFuture sendPacket(Packet packet) {
-        return this.ctx.writeAndFlush(packet);
+        return this.channelHandlerContext.writeAndFlush(packet);
     }
 }

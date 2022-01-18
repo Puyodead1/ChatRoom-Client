@@ -5,7 +5,7 @@ import optic_fusion1.client.ClientChannelHandlerContext;
 import optic_fusion1.common.protos.ErrorPacket;
 import optic_fusion1.common.protos.Packet;
 
-public record ErrorEvent(ClientChannelHandlerContext ctx, Packet packet) implements IEvent {
+public record ErrorEvent(ClientChannelHandlerContext clientChannelHandlerContext, Packet packet) implements IEvent {
     public ErrorPacket getErrorData() {
         return this.packet.getErrorData();
     }

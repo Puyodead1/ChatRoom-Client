@@ -16,14 +16,6 @@ public class PacketMessageHandler extends SimpleChannelInboundHandler<Packet> {
     private static final Logger LOGGER = LogManager.getLogger(PacketMessageHandler.class);
 
     private volatile Channel channel;
-    //
-//    public ChannelFuture sendPacket(Packet packet) throws Exception {
-//        if (ctx != null) {
-//            return ctx.writeAndFlush(packet);
-//        } else {
-//            throw new Exception("ChannelHandlerContext not initialized");
-//        }
-//    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

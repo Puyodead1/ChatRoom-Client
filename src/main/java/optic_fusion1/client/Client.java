@@ -1,7 +1,6 @@
 package optic_fusion1.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -17,9 +16,14 @@ import optic_fusion1.common.protos.ProtocolVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.*;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static optic_fusion1.common.RSAUtils.*;
 
 public class Client implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(Client.class);
@@ -27,14 +31,43 @@ public class Client implements Runnable {
     private final PacketMessageHandler messageHandler = new PacketMessageHandler();
     private boolean isRunning = false;
     private ExecutorService executor = null;
-    public final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.VERSION_000;
+    public final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.VERSION_1;
+    public final File dataDir;
+    public final KeyPair rsaKeyPair;
 
     public String host;
     public int port;
 
-    public Client(String host, int port) {
+    public Client(String host, int port) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NoSuchProviderException {
         this.host = host;
         this.port = port;
+
+        this.dataDir = new File(System.getProperty("user.home"), ".chatroom");
+        if(!this.dataDir.exists()) {
+            this.dataDir.mkdir();
+        }
+
+        final File rsaPublicKeyPath = new File(this.dataDir, "client.pem");
+        final File rsaPrivateKeyPath = new File(this.dataDir, "client.key");
+
+        if(rsaPublicKeyPath.isFile() && rsaPrivateKeyPath.isFile()) {
+            // load keys
+            LOGGER.info("Loading RSA Key Pair...");
+            this.rsaKeyPair = loadRsaKeyPair(rsaPublicKeyPath, rsaPrivateKeyPath);
+            LOGGER.info("Loaded RSA Key Pair");
+        } else {
+            // generate new keys
+            LOGGER.info("Generating new RSA Key Pair...");
+            this.rsaKeyPair = generateRsaKeyPair();
+
+            // save keys
+            LOGGER.info("Saving RSA Key Pair...");
+            saveRsaKeyPair(this.rsaKeyPair, rsaPublicKeyPath, rsaPrivateKeyPath);
+            LOGGER.info(String.format("RSA Public Key File: %s", rsaPublicKeyPath));
+            LOGGER.info(String.format("RSA Private Key File: %s", rsaPrivateKeyPath));
+        }
+
+        LOGGER.info("Data Directory: %s".formatted(this.dataDir.toString()));
     }
 
     public synchronized void start() {
@@ -95,6 +128,9 @@ public class Client implements Runnable {
                 }
             });
 
+            // ensure data directory exists
+            if(!this.dataDir.exists()) this.dataDir.mkdir();
+
             b.connect(host, port).sync().channel().closeFuture().sync();
         } catch (Exception e) {
             LOGGER.fatal(String.format("Failed to start ChatRoom client: %s", e.getLocalizedMessage()));
@@ -102,8 +138,4 @@ public class Client implements Runnable {
             group.shutdownGracefully();
         }
     }
-
-//    public ChannelFuture sendPacket(Packet packet) throws Exception {
-//        return messageHandler.sendPacket(packet);
-//    }
 }
