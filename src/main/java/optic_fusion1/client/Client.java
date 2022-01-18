@@ -35,6 +35,8 @@ public class Client implements Runnable {
     public final File dataDir;
     public final KeyPair rsaKeyPair;
 
+    private Session session = null;
+
     public String host;
     public int port;
 
@@ -137,5 +139,13 @@ public class Client implements Runnable {
         } finally {
             group.shutdownGracefully();
         }
+    }
+
+    public void setSession(final Session session) {
+        this.session = session;
+    }
+
+    public Session getSession() {
+        return session;
     }
 }

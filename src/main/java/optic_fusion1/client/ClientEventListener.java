@@ -3,10 +3,7 @@ package optic_fusion1.client;
 import com.google.protobuf.ByteString;
 import net.lenni0451.asmevents.EventManager;
 import net.lenni0451.asmevents.event.EventTarget;
-import optic_fusion1.client.events.ClientReadyEvent;
-import optic_fusion1.client.events.ErrorEvent;
-import optic_fusion1.client.events.HandshakeResponseEvent;
-import optic_fusion1.client.events.MessageReceivedEvent;
+import optic_fusion1.client.events.*;
 import optic_fusion1.common.protos.HandshakeRequest;
 import optic_fusion1.common.protos.HandshakeResponse;
 import optic_fusion1.common.protos.Packet;
@@ -70,9 +67,19 @@ public class ClientEventListener {
             final PublicKey serverPublicKey = getPublicKeyFromBytes(packetData.getRsaPublicKey().toByteArray());
             final byte[] hmacKey = packetData.getHmacKey().toByteArray();
 
+            final Session session = new Session(sessionId, serverPublicKey, hmacKey);
+            this.client.setSession(session);
+
             LOGGER.info(String.format("[HandshakeResponse] Session ID: %s", sessionId));
+
+            EventManager.call(new SessionReadyEvent(event.clientChannelHandlerContext()));
         } catch(InvalidKeySpecException | NoSuchAlgorithmException ex) {
             LOGGER.error(String.format("[HandshakeResponse] Error loading server public key: %s", ex.getLocalizedMessage()));
         }
+    }
+
+    @EventTarget
+    public void onSessionReady(final SessionReadyEvent event) {
+        LOGGER.info(String.format("[SessionReady] Session Ready, Session ID: %s", this.client.getSession().getId().toString()));
     }
 }
