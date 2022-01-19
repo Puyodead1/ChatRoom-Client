@@ -37,12 +37,16 @@ public class Client implements Runnable {
 
     private Session session = null;
 
-    public String host;
-    public int port;
+    public final String host;
+    public final int port;
+    public final String username;
+    public final String password;
 
-    public Client(String host, int port) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NoSuchProviderException {
+    public Client(String host, int port, String username, String password) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NoSuchProviderException {
         this.host = host;
         this.port = port;
+        this.username = username;
+        this.password = password; // TODO: bcrypt this
 
         this.dataDir = new File(System.getProperty("user.home"), ".chatroom");
         if(!this.dataDir.exists()) {

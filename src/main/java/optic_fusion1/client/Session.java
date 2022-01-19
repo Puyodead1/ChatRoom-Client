@@ -7,11 +7,13 @@ public class Session {
     private final UUID id;
     private final PublicKey serverPublicKey;
     private final byte[] hmacKey;
+    private final boolean authRequired;
 
-    public Session(String id, PublicKey serverPublicKey, byte[] hmacKey) {
+    public Session(String id, PublicKey serverPublicKey, byte[] hmacKey, boolean authRequired) {
         this.id = UUID.fromString(id);
         this.serverPublicKey = serverPublicKey;
         this.hmacKey = hmacKey;
+        this.authRequired = authRequired;
     }
 
     public PublicKey getServerPublicKey() {
@@ -24,5 +26,9 @@ public class Session {
 
     public UUID getId() {
         return id;
+    }
+
+    public boolean isAuthRequired() {
+        return authRequired;
     }
 }

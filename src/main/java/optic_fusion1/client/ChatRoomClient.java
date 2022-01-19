@@ -43,7 +43,7 @@ public class ChatRoomClient {
             String password = optionSet.valueOf(passwordSpec);
 
             try {
-                Client client = new Client(serverHost, serverPort);
+                Client client = new Client(serverHost, serverPort, username, password);
 
                 ClientEventListener eventListener = new ClientEventListener(client);
                 EventManager.register(eventListener);
