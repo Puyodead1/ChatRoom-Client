@@ -13,8 +13,8 @@ import java.util.Properties;
 
 public class ChatRoomClient {
 
-    private static final Logger LOGGER = LogManager.getLogger(ChatRoomClient.class);
     public static final Properties properties = new Properties();
+    private static final Logger LOGGER = LogManager.getLogger(ChatRoomClient.class);
 
     public static void main(String[] args) throws IOException {
         AnsiConsole.systemInstall();

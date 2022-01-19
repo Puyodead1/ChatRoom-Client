@@ -53,7 +53,7 @@ public class ClientEventListener {
     public void onMessageReceived(final MessageReceivedEvent event) {
         LOGGER.info("[MessageReceived] Received a message");
         final Packet.Type packetType = event.packet().getPacketType();
-        switch(packetType) {
+        switch (packetType) {
             case HANDSHAKE_RESPONSE -> EventManager.call(new HandshakeResponseEvent(event.clientChannelHandlerContext(), event.packet()));
             case ERROR -> EventManager.call(new ErrorEvent(event.clientChannelHandlerContext(), event.packet()));
             default -> LOGGER.warn(String.format("[Message Receive] Received an unknown packet type: %s", event.packet()));
@@ -64,7 +64,7 @@ public class ClientEventListener {
     public void onError(final ErrorEvent event) {
         try {
             LOGGER.error(String.format("[Error] %s: %s", event.getErrorData().getErrorType().name(), event.getErrorData().getDescription()));
-        } catch(InvalidProtocolBufferException ex) {
+        } catch (InvalidProtocolBufferException ex) {
             LOGGER.error(String.format("[Error] Received an error event, but failed to reassemble data! %s", ex.getLocalizedMessage()));
         }
     }
@@ -83,7 +83,7 @@ public class ClientEventListener {
             LOGGER.info(String.format("[HandshakeResponse] Session ID: %s", sessionId));
 
             EventManager.call(new SessionReadyEvent(event.clientChannelHandlerContext()));
-        } catch(InvalidKeySpecException | NoSuchAlgorithmException ex) {
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
             LOGGER.error(String.format("[HandshakeResponse] Error loading server public key: %s", ex.getLocalizedMessage()));
         } catch (InvalidProtocolBufferException ex) {
             LOGGER.error(String.format("[HandshakeResponse] Exception caught: %s", ex.getLocalizedMessage()));
@@ -98,7 +98,7 @@ public class ClientEventListener {
     public void onSessionReady(final SessionReadyEvent event) {
         LOGGER.info("[SessionReady] Session Ready");
 
-        if(this.client.getSession().isAuthRequired()) {
+        if (this.client.getSession().isAuthRequired()) {
             // send authentication to the server
             try {
                 final AuthenticationRequestPacket.Builder authPacket = AuthenticationRequestPacket.newBuilder();
@@ -118,7 +118,7 @@ public class ClientEventListener {
                 packet.setSignature(ByteString.copyFrom(signature));
 
                 event.clientChannelHandlerContext().sendPacket(packet.build());
-            } catch(NoSuchPaddingException | InvalidKeyException| IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException ex) {
+            } catch (NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException ex) {
                 LOGGER.error(String.format("[SessionReady] Exception caught while trying to create authentication request packet: %s", ex.getLocalizedMessage()));
             } catch (SignatureException | NoSuchProviderException ex) {
                 LOGGER.error(String.format("[SessionReady] Exception caught while trying to generate signature: %s", ex.getLocalizedMessage()));

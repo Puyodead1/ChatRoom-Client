@@ -16,8 +16,11 @@ import optic_fusion1.common.protos.ProtocolVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.security.*;
+import java.io.File;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,20 +30,17 @@ import static optic_fusion1.common.RSAUtils.*;
 
 public class Client implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(Client.class);
-
-    private final PacketMessageHandler messageHandler = new PacketMessageHandler();
-    private boolean isRunning = false;
-    private ExecutorService executor = null;
     public final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.VERSION_1;
     public final File dataDir;
     public final KeyPair rsaKeyPair;
-
-    private Session session = null;
-
     public final String host;
     public final int port;
     public final String username;
     public final String password;
+    private final PacketMessageHandler messageHandler = new PacketMessageHandler();
+    private boolean isRunning = false;
+    private ExecutorService executor = null;
+    private Session session = null;
 
     public Client(String host, int port, String username, String password) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NoSuchProviderException {
         this.host = host;
@@ -49,14 +49,14 @@ public class Client implements Runnable {
         this.password = password; // TODO: bcrypt this
 
         this.dataDir = new File(System.getProperty("user.home"), ".chatroom");
-        if(!this.dataDir.exists()) {
+        if (!this.dataDir.exists()) {
             this.dataDir.mkdir();
         }
 
         final File rsaPublicKeyPath = new File(this.dataDir, "client.pem");
         final File rsaPrivateKeyPath = new File(this.dataDir, "client.key");
 
-        if(rsaPublicKeyPath.isFile() && rsaPrivateKeyPath.isFile()) {
+        if (rsaPublicKeyPath.isFile() && rsaPrivateKeyPath.isFile()) {
             // load keys
             LOGGER.info("Loading RSA Key Pair...");
             this.rsaKeyPair = loadRsaKeyPair(rsaPublicKeyPath, rsaPrivateKeyPath);
@@ -77,7 +77,7 @@ public class Client implements Runnable {
     }
 
     public synchronized void start() {
-        if(!isRunning) {
+        if (!isRunning) {
             executor = Executors.newFixedThreadPool(1);
             executor.execute(this);
             isRunning = true;
@@ -87,13 +87,13 @@ public class Client implements Runnable {
     public synchronized boolean stop() {
         LOGGER.info("Shutting down");
         boolean bReturn = true;
-        if(isRunning) {
-            if(executor != null) {
+        if (isRunning) {
+            if (executor != null) {
                 executor.shutdown();
                 try {
                     executor.shutdownNow();
-                    if(executor.awaitTermination(calcTime(10, 0.66667), TimeUnit.SECONDS)) {
-                        if(!executor.awaitTermination(calcTime(10, 0.33334), TimeUnit.SECONDS)) {
+                    if (executor.awaitTermination(calcTime(10, 0.66667), TimeUnit.SECONDS)) {
+                        if (!executor.awaitTermination(calcTime(10, 0.33334), TimeUnit.SECONDS)) {
                             bReturn = false;
                         }
                     }
@@ -135,7 +135,7 @@ public class Client implements Runnable {
             });
 
             // ensure data directory exists
-            if(!this.dataDir.exists()) this.dataDir.mkdir();
+            if (!this.dataDir.exists()) this.dataDir.mkdir();
 
             b.connect(host, port).sync().channel().closeFuture().sync();
         } catch (Exception e) {
@@ -145,11 +145,11 @@ public class Client implements Runnable {
         }
     }
 
-    public void setSession(final Session session) {
-        this.session = session;
-    }
-
     public Session getSession() {
         return session;
+    }
+
+    public void setSession(final Session session) {
+        this.session = session;
     }
 }
